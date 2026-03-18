@@ -10,3 +10,6 @@ jobs:
           pwd
           ls -a
           echo $GITHUB_WORKSPACE
+          node -v
+          npm -v
+          npx -v
