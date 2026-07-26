@@ -5,7 +5,7 @@ jobs:
   test-code:
     runs-on: ubuntu-latest
     steps:
-      - name: print working directory
+      - name: rint working directory
         run: |
           pwd
           ls -a
@@ -13,10 +13,13 @@ jobs:
           node -v
           npm -v
           npx -v
-          echo Test Passed
+          echo "Test Passed"
+
   build-code:
-    needs: est-code
+    needs: test-code
     runs-on: ubuntu-latest
-    steps: 
-      -name: Copy the code
-      uses: andstor/copycat-action@v3
+
+    steps:
+      - name: Copy the code
+        uses: andstor/copycat-action@v3
+        run: echo "Copy Completed"
