@@ -15,8 +15,8 @@ jobs:
           npx -v
           echo Test Passed
   build-code:
+    needs: est-code
     runs-on: ubuntu-latest
     steps: 
-      needs: est-code
       -name: Copy the code
       uses: andstor/copycat-action@v3
