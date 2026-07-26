@@ -22,4 +22,6 @@ jobs:
     steps:
       - name: Copy the code
         uses: andstor/copycat-action@v3
-        run: echo "Copy Completed"
+      - name: Log
+        run: |
+          echo "Copy Completed"  
