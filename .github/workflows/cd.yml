@@ -11,7 +11,10 @@ env:
 jobs:
   build-and-push:
     runs-on: ubuntu-latest
-    
+    permissions:
+      contents: read
+      packages: write
+
     steps:
     - name: Checkout code
       uses: actions/checkout@v4
@@ -49,22 +52,11 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         script: |
-          # Login to GHCR
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
-          
-          # Pull latest image
           docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          
-          # Stop old containers
           docker-compose down || true
-          
-          # Update docker-compose.yml to use GHCR image
           export IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
-          
-          # Run with docker-compose
           docker-compose up -d
-          
-          # Health check
           sleep 5
           curl -f http://localhost:5000/health || exit 1
           echo "✅ Deployment successful!"
