@@ -16,7 +16,7 @@ app.use(express.json());
 app.use("/users", userRoutes);
 
 app.get("/", (req, res) => {
-  res.send("API is running...");
+  res.send("API is running smoothly...");
 });
 
 app.get('/health', (req, res) => {
