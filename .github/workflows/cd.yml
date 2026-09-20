@@ -1,0 +1,70 @@
+name: CD - Deploy to VPS
+
+on:
+  push:
+    branches: [ main, master ]
+
+env:
+  REGISTRY: ghcr.io
+  IMAGE_NAME: ${{ github.repository }}
+
+jobs:
+  build-and-push:
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v3
+    
+    - name: Login to GitHub Container Registry
+      uses: docker/login-action@v3
+      with:
+        registry: ${{ env.REGISTRY }}
+        username: ${{ github.actor }}
+        password: ${{ secrets.GITHUB_TOKEN }}
+    
+    - name: Build and push Docker image
+      uses: docker/build-push-action@v5
+      with:
+        context: .
+        push: true
+        tags: |
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:${{ github.sha }}
+        cache-from: type=gha
+        cache-to: type=gha,mode=max
+
+  deploy:
+    needs: build-and-push
+    runs-on: ubuntu-latest
+    
+    steps:
+    - name: Deploy to VPS
+      uses: appleboy/ssh-action@v1.0.0
+      with:
+        host: ${{ secrets.VPS_HOST }}
+        username: ${{ secrets.VPS_USERNAME }}
+        key: ${{ secrets.VPS_SSH_KEY }}
+        script: |
+          # Login to GHCR
+          echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
+          
+          # Pull latest image
+          docker pull ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          
+          # Stop old containers
+          docker-compose down || true
+          
+          # Update docker-compose.yml to use GHCR image
+          export IMAGE=${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+          
+          # Run with docker-compose
+          docker-compose up -d
+          
+          # Health check
+          sleep 5
+          curl -f http://localhost:5000/health || exit 1
+          echo "✅ Deployment successful!"

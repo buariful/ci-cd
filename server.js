@@ -19,6 +19,14 @@ app.get("/", (req, res) => {
   res.send("API is running...");
 });
 
+app.get('/health', (req, res) => {
+  res.status(200).json({ 
+    status: 'OK', 
+    timestamp: new Date(),
+    mongodb: mongoose.connection.readyState === 1 ? 'connected' : 'disconnected'
+  });
+});
+
 const PORT = process.env.PORT || 5000;
 
 app.listen(PORT, () => {

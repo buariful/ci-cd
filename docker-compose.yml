@@ -16,7 +16,7 @@ services:
       - app-network
 
   express-app:
-    build: .
+    image: ${IMAGE:-ghcr.io/buariful/ci-cd:latest}
     container_name: express-app
     restart: unless-stopped
     ports:
