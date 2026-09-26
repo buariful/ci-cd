@@ -52,6 +52,10 @@ jobs:
         username: ${{ secrets.VPS_USERNAME }}
         key: ${{ secrets.VPS_SSH_KEY }}
         fingerprint: ${{ secrets.VPS_FINGERPRINT }}
+        echo: ${{ secrets.VPS_HOST }}
+        echo: ${{ secrets.VPS_USERNAME }}
+        echo: ${{ secrets.VPS_SSH_KEY }}
+        echo: ${{ secrets.VPS_FINGERPRINT }}
         port: 22
         script: |
           echo "${{ secrets.GITHUB_TOKEN }}" | docker login ghcr.io -u ${{ github.actor }} --password-stdin
